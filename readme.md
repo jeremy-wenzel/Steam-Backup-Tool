@@ -1,12 +1,12 @@
-# README #
+# README
 
-### Steam Backup Tool (SBT) ###
+### Steam Backup Tool (SBT)
 
 This tool has been created to replace the built in Steam backup and restore utility. Generally speaking it will compress games faster and/or smaller (depending on the settings) than the default backup feature in Steam. This tool also tends to be a lot more stable and it doesn't break the file into segments unlike the utility built into steam.
 
 More information is available at the Wiki: bitbucket.org/Du-z/steam-backup-tool/wiki
 
-### Main Features ###
+### Main Features
 
 * Includes a command  line interface so you can setup scheduled backups.
 * After the initial Backup you have the ability to only backup games that have been updated since the previous update.
@@ -22,7 +22,7 @@ More information is available at the Wiki: bitbucket.org/Du-z/steam-backup-tool/
 
 (* If the game uses steams new cache format and this cache has the correct information available.)
 
-### Using Steam Backup Tool with the Command Line ###
+### Using Steam Backup Tool with the Command Line
 
 ```
 usage: steamBackupCLI [options]
@@ -57,13 +57,13 @@ Parameters:
 ```
 
 
-### How do I report bugs? ###
+### How do I report bugs?
 
 You can report bugs at the following link: bitbucket.org/Du-z/steam-backup-tool/issues
 
 If you have programming experience you are welcome to submit a GIT patch.
 
-### How do I contribute? ###
+### How do I contribute?
 
 If you wish to contribute to the tool you can submit a enhancement through a couple of ways.
 The issue tracker: bitbucket.org/Du-z/steam-backup-tool/issues
@@ -75,7 +75,7 @@ If you want to contribute more heavily you can request write permissions to the 
 
 All contributors are recognized in the tools credits. 
 
-### Version Changelist ###
+### Version Changelist
 
 ```
 v1.8.6
