@@ -54,6 +54,12 @@ Parameters:
   -T, --threads=VALUE        Thread count
                                LZMA:  number of concurrent instances,
                                LZMA2: number of threads used
+  -K, --kill-steam           Kill Steam
+                               Kills the Steam process if it is running.
+  -R, --restart-steam        Restart Steam
+                               Kills the steam process and restarts it once the
+                               back up has completed. Adding K|killsteam will
+                               be a no-op
 ```
 
 
