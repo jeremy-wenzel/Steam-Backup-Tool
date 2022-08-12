@@ -23,6 +23,8 @@ namespace steamBackupCLI
         static int m_numThreads = Environment.ProcessorCount / 2;
         static string m_outDir = string.Empty;
         static string m_steamDir = string.Empty;
+        static bool m_killSteam;
+        static bool m_restartSteam;
 
         public static BackupTask m_bupTask;
 
@@ -77,39 +79,55 @@ namespace steamBackupCLI
                 },
                 {
                     "C|compression=",
-                    "Set compression level. Possible values 0 - 5:" + Environment.NewLine + 
-                    "\t0 : Copy" + Environment.NewLine + 
-                    "\t1 : Fastest" + Environment.NewLine + 
-                    "\t2 : Fast" + Environment.NewLine + 
-                    "\t3 : Normal" + Environment.NewLine + 
-                    "\t4 : Maximum" + Environment.NewLine + 
+                    "Set compression level. Possible values 0 - 5:" + Environment.NewLine +
+                    "\t0 : Copy" + Environment.NewLine +
+                    "\t1 : Fastest" + Environment.NewLine +
+                    "\t2 : Fast" + Environment.NewLine +
+                    "\t3 : Normal" + Environment.NewLine +
+                    "\t4 : Maximum" + Environment.NewLine +
                     "\t5 : Ultra",
                     (int comp) => m_compLevel = comp
                 },
                 {
                     "B|backup",
-                    "Update backup" + Environment.NewLine + 
+                    "Update backup" + Environment.NewLine +
                     "Update games that have been changed since the last backup, EXCLUDING games that have not been backed up yet.",
                     v => m_updateBackup = v != null
                 },
                 {
                     "L|library",
-                    "Update library" + Environment.NewLine + 
+                    "Update library" + Environment.NewLine +
                     "Update games that have been changed since the last backup, INCLUDING games that have not been backed up yet.",
                     v => m_updateLibrary = v != null
                 },
                 {
                     "D|delete",
-                    "Delete all backup files before starting" + Environment.NewLine + 
+                    "Delete all backup files before starting" + Environment.NewLine +
                     "ignored when either update library or update backup parameter is used",
                     v => m_deleteBackup = v != null
                 },
                 {
                     "T|threads=",
-                    "Thread count" + Environment.NewLine + 
-                    "LZMA:  number of concurrent instances," + Environment.NewLine + 
+                    "Thread count" + Environment.NewLine +
+                    "LZMA:  number of concurrent instances," + Environment.NewLine +
                     "LZMA2: number of threads used",
                     (int num) => m_numThreads = num
+                },
+                {
+                    "K|kill-steam",
+                    "Kill Steam" + Environment.NewLine +
+                    "Kills the Steam process if it is running.",
+                    v => m_killSteam = true
+                },
+                {
+                    "R|restart-steam",
+                    "Restart Steam" + Environment.NewLine +
+                    "Kills the steam process and restarts it once the back up has completed. Adding K|killsteam will be a no-op",
+                    v =>
+                    {
+                        m_killSteam = true;
+                        m_restartSteam = true;
+                    }
                 }
             };
 
@@ -140,6 +158,8 @@ namespace steamBackupCLI
 
             StartCompression();
 
+            CleanUp();
+
             Console.SetCursorPosition(0, m_instanceLines.Last() + 3);
             Console.WriteLine(Resources.BackupFinished);
             Thread.Sleep(2000);
@@ -149,15 +169,31 @@ namespace steamBackupCLI
         {
             if (Utilities.IsSteamRunning())
             {
-                Console.WriteLine(@"");
-                Console.WriteLine(@"Steam is running!");
-                Console.WriteLine(@"Please exit Steam before backing up.");
-                Console.WriteLine(@"To continue, exit Steam and restart this Application.");
-                Console.WriteLine(@"Do not start Steam until the backup process is finished.");
-                Console.WriteLine(@"");
-                Console.WriteLine(@"Press enter to exit.");
-                Console.ReadLine();
-                Environment.Exit(2);
+                if (m_killSteam)
+                {
+                    Utilities.KillSteamProcess();
+
+                    int retries = 0;
+                    while (Utilities.IsSteamRunning() && retries < 5)
+                    {
+                        Console.WriteLine("Steam hasn't closed. Waiting one second");
+                        Thread.Sleep(1000);
+                    }
+
+                    // Double check we were able to kill the process.
+                    if (Utilities.IsSteamRunning())
+                    {
+                        Console.WriteLine("Unable to kill steam process.");
+                        OutputCloseSteamMessage();
+                        Environment.Exit(2);
+                    }
+                }
+                else
+                {
+                    OutputCloseSteamMessage();
+                    Environment.Exit(2);
+                }
+                
             }
 
             if (string.IsNullOrEmpty(m_steamDir))
@@ -230,6 +266,18 @@ namespace steamBackupCLI
             }
 
             m_bupTask.Start();
+        }
+
+        private static void OutputCloseSteamMessage()
+        {
+            Console.WriteLine(@"");
+            Console.WriteLine(@"Steam is running!");
+            Console.WriteLine(@"Please exit Steam before backing up.");
+            Console.WriteLine(@"To continue, exit Steam and restart this Application.");
+            Console.WriteLine(@"Do not start Steam until the backup process is finished.");
+            Console.WriteLine(@"");
+            Console.WriteLine(@"Press enter to exit.");
+            Console.ReadLine();
         }
 
         private static void StartCompression()
@@ -389,6 +437,16 @@ namespace steamBackupCLI
                 var instance = m_registeredInstances.FindIndex(i => i == instanceId);
                 m_registeredInstances[instance] = -1;
             }
+        }
+
+        private static void CleanUp()
+        {
+            Console.WriteLine("Cleaning up");
+            if (m_restartSteam)
+            {
+                Utilities.StartSteamProcess(m_steamDir);
+            }
+            Console.WriteLine("Finished cleaning up");
         }
     }
 }

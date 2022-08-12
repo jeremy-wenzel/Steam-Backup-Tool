@@ -89,6 +89,33 @@
             return pname.Length != 0 && Settings.CheckSteamRun;
         }
 
+        public static void KillSteamProcess()
+        {
+            var process = GetSteamProcesses().FirstOrDefault();
+            if (process == null)
+            {
+                Console.WriteLine(@"Unable to find steam process.");
+                return;
+            }
+
+            Console.WriteLine(@"Killing steam process");
+            process.Kill();
+        }
+
+        public static void StartSteamProcess(string steamInstallLocation)
+        {
+            var processInfo = new ProcessStartInfo();
+            processInfo.FileName = "steam.exe";
+            processInfo.WorkingDirectory = steamInstallLocation;
+
+            Process.Start(processInfo);
+        }
+
+        private static Process[] GetSteamProcesses()
+        {
+            return Process.GetProcessesByName("Steam");
+        }
+
         /// <summary>
         /// Copy .acf files from steam to backup directory
         /// </summary>
