@@ -9,6 +9,8 @@
     using System.Diagnostics;
     using System.IO;
     using System.Linq;
+    using NeXt.Vdf;
+    using steamBackup.AppServices.src.Vdf;
 
     public static class Utilities
     {
@@ -53,29 +55,33 @@
 
         public static List<string> GetLibraries(string steamDir)
         {
-            var libraries = new List<string>
-            {
-                Path.Combine(steamDir, GetSteamAppsFolder(steamDir))
-            };
+            //var libraries = new List<string>
+            //{
+            //    Path.Combine(steamDir, GetSteamAppsFolder(steamDir))
+            //};
 
-            using (var reader = new FileInfo(Path.Combine(steamDir, SteamDirectory.Config, "config.vdf")).OpenText())
-            {
-                var content = reader.ReadToEnd();
-                var regEx = new Regex(@"^\s*?""BaseInstallFolder_\d*?""\s*?""(.*?)""$",
-                                      RegexOptions.Multiline);
-                var matches = regEx.Matches(content);
+            // need to get the content from libraryfolders.vdf
+            // Probably need to convert to some kind of vdf parser
 
-                libraries.AddRange(from Match match in matches
-                                   where match.Success
-                                   select match.Groups[1].Value
-                                   into path
-                                   where !String.IsNullOrEmpty(path) && Directory.Exists(path)
-                                   select Path.GetFullPath(path)
-                                   into steamLib
-                                   select Path.Combine(steamLib, GetSteamAppsFolder(steamLib)));
-            }
+            //using (var reader = new FileInfo(Path.Combine(steamDir, SteamDirectory.Config, "config.vdf")).OpenText())
+            //{
+            //    var content = reader.ReadToEnd();
+            //    var regEx = new Regex(@"^\s*?""BaseInstallFolder_\d*?""\s*?""(.*?)""$",
+            //                          RegexOptions.Multiline);
+            //    var matches = regEx.Matches(content);
 
-            return libraries;
+            //    libraries.AddRange(from Match match in matches
+            //                       where match.Success
+            //                       select match.Groups[1].Value
+            //                       into path
+            //                       where !String.IsNullOrEmpty(path) && Directory.Exists(path)
+            //                       select Path.GetFullPath(path)
+            //                       into steamLib
+            //                       select Path.Combine(steamLib, GetSteamAppsFolder(steamLib)));
+            //}
+
+            var vdfLibraries = SteamVdfFolderValue.InitializeFromFile(steamDir);
+            return vdfLibraries.Select(library => Path.Combine(library.GetFolderPath(), GetSteamAppsFolder(library.GetFolderPath()))).ToList();
         }
 
         public static string UpDirLvl(string dir)

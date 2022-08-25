@@ -59,6 +59,7 @@
     <Compile Include="src\Settings.cs" />
     <Compile Include="src\SevenZipWrapper\SevenZipWrapper.cs" />
     <Compile Include="src\SteamDirectory.cs" />
+    <Compile Include="src\Vdf\SteamVdfFolderValue.cs" />
     <Compile Include="src\Tasks\Backup\BackupTask.cs" />
     <Compile Include="src\Tasks\Restore\RestoreTask.cs" />
     <Compile Include="src\Tasks\Task.cs" />
@@ -86,7 +87,12 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\NeXt.Vdf\NeXt.Vdf.csproj">
+      <Project>{e4eda8b8-006c-4d41-822f-f64b6db0021f}</Project>
+      <Name>NeXt.Vdf</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

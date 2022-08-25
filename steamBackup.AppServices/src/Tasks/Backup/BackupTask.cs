@@ -90,9 +90,7 @@
 
         public override void Scan(BackgroundWorker worker = null)
         {
-            // Find all of the backed up items and a it to the job list
-            
-            //scanMisc();
+            // Find all of the backed up items and add it to the job list
             ScanCommonFolders(worker);
         }
 
